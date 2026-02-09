@@ -17,14 +17,17 @@ BALL_RADIUS = 7
 #Font and the size
 SCORE_FONT = pygame.font.SysFont("comicsans", 50)
 
+#WIN
+WINNING_SCORE = 10
+
 #Creating the Paddles
 class Paddle:
     COLOR = WHITE
     VEL = 4 #Velocity which the paddle moves when user presses the key
 
     def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
+        self.x = self.original_x = x
+        self.y = self.original_y = y
         self.width = width
         self.height = height
 
@@ -37,6 +40,10 @@ class Paddle:
             self.y -= self.VEL
         else:
             self.y += self.VEL
+
+    def reset(self):
+        self.x = self.original_x
+        self.y = self.original_y
 
 #Creating the Ball
 class Ball:
@@ -61,7 +68,7 @@ class Ball:
         self.x = self.original_x
         self.y = self.original_y
         self.y_vel = 0
-        self.x_vel *= -1
+        self.x_vel *= -1 #Dictating the direction of the ball after a win
 
 #Changing the color of the Display, creating paddles and dashed line, ball
 def draw(win, paddles, ball, left_score, right_score):
@@ -158,6 +165,26 @@ def main():
         elif ball.x > WIDTH:
             left_score += 1
             ball.reset()
+        
+        won = False
+        if left_score >= WINNING_SCORE:
+            won = True
+            win_text = "Left Player Won!"
+        elif right_score >= WINNING_SCORE:
+            won = True
+            win_text = "Right Player Won!"
+        
+        #If someone won, show text and reset
+        if won:
+            text = SCORE_FONT.render(win_text,1,WHITE)
+            WIN.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT//2 - text.get_height()//2))
+            pygame.display.update()
+            pygame.time.delay(5000)
+            ball.reset()
+            left_paddle.reset()
+            right_paddle.reset()
+            left_score = 0
+            right_score = 0
 
     pygame.quit()
 
